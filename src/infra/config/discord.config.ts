@@ -3,7 +3,7 @@ import { Intents } from "discord.js";
 
 export const discordConfigFactory = (): DiscordModuleOption =>({
     token: process.env.TOKEN,
-    commandPrefix: '!',
+    commandPrefix: '/',
     usePipes: [TransformPipe, ValidationPipe],
     intents: [
         Intents.FLAGS.GUILDS,

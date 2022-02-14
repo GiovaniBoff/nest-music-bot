@@ -1,18 +1,27 @@
 import { SubCommand } from '@discord-nestjs/core';
 import { Controller} from '@nestjs/common';
-import { OnCommand } from 'discord-nestjs';
-import { Message} from 'discord.js';
+import { Content, Context, OnCommand } from 'discord-nestjs';
+import { CommandInteraction, Message } from 'discord.js';
+import { BotService } from './bot.service';
 
 @Controller()
 export class BotController{
   
+    constructor(private botService: BotService){}
+
     @OnCommand({ name: 'help'})
-    async onHelp(message: Message): Promise<void>{
-        await message.reply('VAI TU TI FUDE!')
+    async onHelp(
+        @Content() content: string,
+        @Context() [context]: [Message]
+    ): Promise<void>{
+        await context.reply(`${content}`)
     }
 
     @OnCommand({ name: 'play' })
-    async onPlay(message: Message): Promise<void>{
-
+    async onPlay(
+        @Content() content: string,
+        @Context() [context]: [Message]
+    ): Promise<void>{
+        await this.botService.play(content,context)
     }
 }
