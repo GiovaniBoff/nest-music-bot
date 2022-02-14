@@ -32,6 +32,13 @@
 $ npm install
 ```
 
+## If you have some issue with installation
+Probably this occurs because of a miss configuration (node ver: 16.14.0)
+
+```bash
+$ nvm install lts/gallium
+```
+
 ## Running the app
 
 ```bash
