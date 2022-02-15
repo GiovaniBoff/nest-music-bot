@@ -14,9 +14,9 @@ export class BotService implements OnApplicationBootstrap {
     this.player = new Player(client, discordPlayerConfig);
   }
 
-  async play(content: string, context: Message): Promise<void> {
+  async play(content: string, context: Message): Promise<Message> {
     if (!content) {
-      context.channel.send(
+      return context.channel.send(
         `Che te fude ${context.author}... escreve essa merda direito! ❌`,
       );
     }
@@ -63,6 +63,44 @@ export class BotService implements OnApplicationBootstrap {
     );
   }
 
+  async skip(context: Message): Promise<Message> {
+    const queue = this.player.getQueue(context.guild.id);
+
+    if (!queue || !queue.playing) {
+      return context.channel.send(
+        `Che ${context.author}, se pá tem musica tocando não pae...❌`,
+      );
+    }
+    const success = queue.skip();
+
+    return context.channel.send(
+      success
+        ? `Che, acabei de pular essa merda de "${queue.current.title}"...✅`
+        : `Che ${context.author}, deu merda ai pae, não deu pra pular essa bosta! ❌`,
+    );
+  }
+
+  async skipTo(content: string, context: Message): Promise<Message> {
+    const queue = this.player.getQueue(context.guild.id);
+
+    if (!queue || !queue.playing) {
+      return context.channel.send(
+        `Che ${context.author}, se pá tem musica tocando não pae...❌`,
+      );
+    }
+
+    try {
+      queue.skipTo(Number.parseInt(content));
+      return context.channel.send(
+        `Che, acabei de pular essa merda de "${queue.current.title}"...✅`,
+      );
+    } catch {
+      return context.channel.send(
+        `Che ${context.author},não deu pra pular essa bosta! Se pá não tem mais nada aí! ❌`,
+      );
+    }
+  }
+
   private async queue(
     playerSearch: PlayerSearchResult,
     content: string,
@@ -80,9 +118,8 @@ export class BotService implements OnApplicationBootstrap {
         `Che te fude ${context.author}... não consegui conectar nessa merda! ❌`,
       );
     }
-    await context.channel.send(
-      `Che, buscando essa merda de musica "${content}"... 🎧`,
-    );
+    context.channel.send(`Che, buscando essa merda"${content}"... 🎧`);
+
     await this.addTrackToQueue(playerSearch, queue);
   }
 
