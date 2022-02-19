@@ -22,7 +22,7 @@ export class BotService implements OnApplicationBootstrap {
     }
     const res = await this.search(content, context);
 
-    await this.queue(res, content, context);
+    await this.queueConfig(res, content, context);
   }
 
   async stop(context: Message): Promise<void> {
@@ -101,24 +101,29 @@ export class BotService implements OnApplicationBootstrap {
     }
   }
 
-  private async queue(
+  private async queueConfig(
     playerSearch: PlayerSearchResult,
     content: string,
     context: Message,
   ): Promise<void> {
-    const queue = this.player.createQueue(context.guild, {
+    let queue: Queue = this.player.getQueue(context.guild.id);
+
+    if (!queue) {
+      queue = this.player.createQueue(context.guild, {
       metadata: context.channel,
     });
-
-    if (!queue.connection) {
-      await queue.connect(context.member.voice.channel);
-    } else {
+    }
+    try {
+      if (!queue.connection) {
+        await queue.connect(context.member.voice.channel);
+      }
+    } catch{
       this.player.deleteQueue(context.guild.id);
       context.channel.send(
         `Che te fude ${context.author}... não consegui conectar nessa merda! ❌`,
       );
     }
-    context.channel.send(`Che, buscando essa merda"${content}"... 🎧`);
+    context.channel.send(`Che, buscando essa merda "${content}"... 🎧`);
 
     await this.addTrackToQueue(playerSearch, queue);
   }
@@ -127,6 +132,7 @@ export class BotService implements OnApplicationBootstrap {
     playerSearch: PlayerSearchResult,
     queue: Queue,
   ): Promise<void> {
+  
     playerSearch.playlist
       ? queue.addTracks(playerSearch.tracks)
       : queue.addTrack(playerSearch.tracks[0]);
