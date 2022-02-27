@@ -48,7 +48,7 @@ export class BotController {
     await this.botService.skipTo(content, context);
   }
 
-  @OnCommand({ name: 'progress', prefix: 'prs' })
+  @OnCommand({ name: 'pbar' })
   async onProgress(
     @Content() content: string,
     @Context() [context]: [Message],

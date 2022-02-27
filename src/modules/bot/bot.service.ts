@@ -84,8 +84,18 @@ export class BotService implements OnApplicationBootstrap {
     }
   }
 
-  async progress(content: string, context: Message): Promise<any> {
-    return null;
+  async progress(content: string, context: Message): Promise<void> {
+    try {
+      const queue = this.player.getQueue(context.guild.id);
+      this.validateQueueIsPlaying(queue, context);
+
+      const progress = queue.createProgressBar();
+      const timestamp = queue.getPlayerTimestamp();
+
+      context.channel.send(`${progress} (**${timestamp.progress}**%)`);
+    } catch (error) {
+      return error;
+    }
   }
 
   private async queueConfig(
@@ -147,9 +157,10 @@ export class BotService implements OnApplicationBootstrap {
   }
 
   private async validateQueueIsPlaying(queue: Queue, context: Message) {
-    if (!queue || !queue.playing)
-      context.channel.send(
+    if (!queue || !queue.playing) {
+      return context.channel.send(
         `${context.author}, tá viajando? não tem música tocando... drogado do krl 🌚 🪴`,
       );
+    }
   }
 }
