@@ -27,20 +27,14 @@ export class BotService implements OnApplicationBootstrap {
 
   async stop(context: Message): Promise<void> {
     const queue = this.player.getQueue(context.guild.id);
-    if (!queue || !queue.playing)
-      context.channel.send(
-        `Che,${context.author}, tá viajando? não tem música tocando... drogado do krl 🌚 🪴`,
-      );
+    this.validateQueueIsPlaying(queue, context);
     queue.destroy();
     await context.channel.send(`A Musica parou pq tu é chato pra krl ✅`);
   }
 
   async pause(context: Message): Promise<void> {
     const queue = this.player.getQueue(context.guild.id);
-    if (!queue || !queue.playing)
-      context.channel.send(
-        `${context.author}, tá viajando? não tem música tocando... drogado do krl 🌚 🪴`,
-      );
+    this.validateQueueIsPlaying(queue, context);
     const success = queue.setPaused(true);
     await context.channel.send(
       success
@@ -51,10 +45,7 @@ export class BotService implements OnApplicationBootstrap {
 
   async resume(context: Message): Promise<void> {
     const queue = this.player.getQueue(context.guild.id);
-    if (!queue || !queue.playing)
-      context.channel.send(
-        `${context.author}, tá viajando? não tem música tocando... drogado do krl 🌚 🪴`,
-      );
+    this.validateQueueIsPlaying(queue, context);
     const success = queue.setPaused(false);
     await context.channel.send(
       success
@@ -66,11 +57,7 @@ export class BotService implements OnApplicationBootstrap {
   async skip(context: Message): Promise<Message> {
     const queue = this.player.getQueue(context.guild.id);
 
-    if (!queue || !queue.playing) {
-      return context.channel.send(
-        `Che ${context.author}, se pá tem musica tocando não pae...❌`,
-      );
-    }
+    this.validateQueueIsPlaying(queue, context);
     const success = queue.skip();
 
     return context.channel.send(
@@ -83,11 +70,7 @@ export class BotService implements OnApplicationBootstrap {
   async skipTo(content: string, context: Message): Promise<Message> {
     const queue = this.player.getQueue(context.guild.id);
 
-    if (!queue || !queue.playing) {
-      return context.channel.send(
-        `Che ${context.author}, se pá tem musica tocando não pae...❌`,
-      );
-    }
+    this.validateQueueIsPlaying(queue, context);
 
     try {
       queue.skipTo(Number.parseInt(content));
@@ -101,6 +84,10 @@ export class BotService implements OnApplicationBootstrap {
     }
   }
 
+  async progress(content: string, context: Message): Promise<any> {
+    return null;
+  }
+
   private async queueConfig(
     playerSearch: PlayerSearchResult,
     content: string,
@@ -110,14 +97,14 @@ export class BotService implements OnApplicationBootstrap {
 
     if (!queue) {
       queue = this.player.createQueue(context.guild, {
-      metadata: context.channel,
-    });
+        metadata: context.channel,
+      });
     }
     try {
       if (!queue.connection) {
         await queue.connect(context.member.voice.channel);
       }
-    } catch{
+    } catch {
       this.player.deleteQueue(context.guild.id);
       context.channel.send(
         `Che te fude ${context.author}... não consegui conectar nessa merda! ❌`,
@@ -132,7 +119,6 @@ export class BotService implements OnApplicationBootstrap {
     playerSearch: PlayerSearchResult,
     queue: Queue,
   ): Promise<void> {
-  
     playerSearch.playlist
       ? queue.addTracks(playerSearch.tracks)
       : queue.addTrack(playerSearch.tracks[0]);
@@ -158,5 +144,12 @@ export class BotService implements OnApplicationBootstrap {
     }
 
     return res;
+  }
+
+  private async validateQueueIsPlaying(queue: Queue, context: Message) {
+    if (!queue || !queue.playing)
+      context.channel.send(
+        `${context.author}, tá viajando? não tem música tocando... drogado do krl 🌚 🪴`,
+      );
   }
 }

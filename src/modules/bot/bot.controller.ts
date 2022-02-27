@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { Content, Context, OnCommand } from 'discord-nestjs';
+import { Content, Context, On, OnCommand } from 'discord-nestjs';
 import { Message } from 'discord.js';
 import { BotService } from './bot.service';
 
@@ -7,7 +7,7 @@ import { BotService } from './bot.service';
 export class BotController {
   constructor(private botService: BotService) {}
 
-  @OnCommand({ name: 'help' || 'h' })
+  @OnCommand({ name: 'help' })
   async onHelp(
     @Content() content: string,
     @Context() [context]: [Message],
@@ -46,5 +46,13 @@ export class BotController {
     @Context() [context]: [Message],
   ): Promise<void> {
     await this.botService.skipTo(content, context);
+  }
+
+  @OnCommand({ name: 'progress', prefix: 'prs' })
+  async onProgress(
+    @Content() content: string,
+    @Context() [context]: [Message],
+  ): Promise<void> {
+    await this.botService.progress(content, context);
   }
 }
