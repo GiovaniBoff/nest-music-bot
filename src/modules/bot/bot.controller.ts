@@ -2,12 +2,13 @@ import { Controller } from '@nestjs/common';
 import { Content, Context, On, OnCommand } from 'discord-nestjs';
 import { Message } from 'discord.js';
 import { BotService } from './bot.service';
+import { Commands } from './utils/command.enum';
 
 @Controller()
 export class BotController {
   constructor(private botService: BotService) {}
 
-  @OnCommand({ name: 'help' })
+  @OnCommand({ name: Commands.Help })
   async onHelp(
     @Content() content: string,
     @Context() [context]: [Message],
@@ -15,7 +16,7 @@ export class BotController {
     await context.reply(`${content}`);
   }
 
-  @OnCommand({ name: 'play' })
+  @OnCommand({ name: Commands.Play })
   async onPlay(
     @Content() content: string,
     @Context() [context]: [Message],
@@ -23,24 +24,24 @@ export class BotController {
     await this.botService.play(content, context);
   }
 
-  @OnCommand({ name: 'stop' })
+  @OnCommand({ name: Commands.Stop })
   async onStop(@Context() [context]: [Message]): Promise<void> {
     await this.botService.stop(context);
   }
 
-  @OnCommand({ name: 'pause' })
+  @OnCommand({ name: Commands.Pause })
   async onPause(@Context() [context]: [Message]): Promise<void> {
     await this.botService.pause(context);
   }
-  @OnCommand({ name: 'resume' })
+  @OnCommand({ name: Commands.Resume })
   async onResume(@Context() [context]: [Message]): Promise<void> {
     await this.botService.resume(context);
   }
-  @OnCommand({ name: 'skip' })
+  @OnCommand({ name: Commands.Skip })
   async onSkip(@Context() [context]: [Message]): Promise<void> {
     await this.botService.skip(context);
   }
-  @OnCommand({ name: 'skipTo' })
+  @OnCommand({ name: Commands.SkipTo })
   async onSkipTo(
     @Content() content: string,
     @Context() [context]: [Message],
@@ -48,7 +49,7 @@ export class BotController {
     await this.botService.skipTo(content, context);
   }
 
-  @OnCommand({ name: 'pbar' })
+  @OnCommand({ name: Commands.Progress })
   async onProgress(
     @Content() content: string,
     @Context() [context]: [Message],

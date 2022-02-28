@@ -1,7 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Client, ClientProvider } from 'discord-nestjs';
 import { Player, PlayerSearchResult, QueryType, Queue } from 'discord-player';
-import { Message } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 
 import { discordPlayerConfig } from 'src/infra/config/discordPlayer.config';
 @Injectable()
@@ -14,57 +14,85 @@ export class BotService implements OnApplicationBootstrap {
     this.player = new Player(client, discordPlayerConfig);
   }
 
-  async play(content: string, context: Message): Promise<Message> {
-    if (!content) {
-      return context.channel.send(
-        `Che te fude ${context.author}... escreve essa merda direito! ❌`,
-      );
-    }
-    const res = await this.search(content, context);
+  async help(content: string, context: Message): Promise<Message> {
+    const msgEmbed = new MessageEmbed();
 
-    await this.queueConfig(res, content, context);
+    
+
+    return null;
+  }
+
+  async play(content: string, context: Message): Promise<Message> {
+    try {
+      if (!content) {
+        return context.channel.send(
+          `Che te fude ${context.author}... escreve essa merda direito! ❌`,
+        );
+      }
+      const res = await this.search(content, context);
+
+      await this.queueConfig(res, content, context);
+    } catch (error) {
+      return error;
+    }
   }
 
   async stop(context: Message): Promise<void> {
-    const queue = this.player.getQueue(context.guild.id);
-    this.validateQueueIsPlaying(queue, context);
-    queue.destroy();
-    await context.channel.send(`A Musica parou pq tu é chato pra krl ✅`);
+    try {
+      const queue = this.player.getQueue(context.guild.id);
+      this.validateQueueIsPlaying(queue, context);
+      queue.destroy();
+      await context.channel.send(`A Musica parou pq tu é chato pra krl ✅`);
+    } catch (error) {
+      return error;
+    }
   }
 
   async pause(context: Message): Promise<void> {
-    const queue = this.player.getQueue(context.guild.id);
-    this.validateQueueIsPlaying(queue, context);
-    const success = queue.setPaused(true);
-    await context.channel.send(
-      success
-        ? `A Musica parou pq tu é chato pra krl ✅`
-        : 'Não consegui parar a musica... deu ruim meu patrão',
-    );
+    try {
+      const queue = this.player.getQueue(context.guild.id);
+      this.validateQueueIsPlaying(queue, context);
+      const success = queue.setPaused(true);
+      await context.channel.send(
+        success
+          ? `A Musica parou pq tu é chato pra krl ✅`
+          : 'Não consegui parar a musica... deu ruim meu patrão',
+      );
+    } catch (error) {
+      return error;
+    }
   }
 
   async resume(context: Message): Promise<void> {
-    const queue = this.player.getQueue(context.guild.id);
-    this.validateQueueIsPlaying(queue, context);
-    const success = queue.setPaused(false);
-    await context.channel.send(
-      success
-        ? `A Musica parou pq tu é chato pra krl ✅`
-        : 'Não consegui parar a musica... deu ruim meu patrão',
-    );
+    try {
+      const queue = this.player.getQueue(context.guild.id);
+      this.validateQueueIsPlaying(queue, context);
+      const success = queue.setPaused(false);
+      await context.channel.send(
+        success
+          ? `A Musica parou pq tu é chato pra krl ✅`
+          : 'Não consegui parar a musica... deu ruim meu patrão',
+      );
+    } catch (error) {
+      return error;
+    }
   }
 
   async skip(context: Message): Promise<Message> {
-    const queue = this.player.getQueue(context.guild.id);
+    try {
+      const queue = this.player.getQueue(context.guild.id);
 
-    this.validateQueueIsPlaying(queue, context);
-    const success = queue.skip();
+      this.validateQueueIsPlaying(queue, context);
 
-    return context.channel.send(
-      success
-        ? `Che, acabei de pular essa merda de "${queue.current.title}"...✅`
-        : `Che ${context.author}, deu merda ai pae, não deu pra pular essa bosta! ❌`,
-    );
+      const success = queue.skip();
+      return context.channel.send(
+        success
+          ? `Che, acabei de pular essa merda de "${queue.current.title}"...✅`
+          : `Che ${context.author}, deu merda ai pae, não deu pra pular essa bosta! ❌`,
+      );
+    } catch (error) {
+      return error;
+    }
   }
 
   async skipTo(content: string, context: Message): Promise<Message> {
